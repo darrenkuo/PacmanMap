@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"> 
+  <head> 
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/> 
+    <title>Pacman Run map editor</title> 
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script> 
+    <script type="text/javascript" src="js/index.js"></script> 
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/interface.js"></script>
+    <script type="text/javascript" src="js/graph.js"></script>
+    <script type="text/javascript" src="js/Global.js"></script>
+    <script type="text/javascript" src="js/XMLWriter.js"></script>
+    <script type="text/javascript" src="js/ButtonsControl.js"></script>
+    <script type="text/javascript" src="js/Marker.js"></script>
+    <script type="text/javascript" src="js/floating-1.5.js"></script>
+    
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head> 
+  <body onload="initialize()">
+    <table>
+    <tr valign="top">
+      <td style="text-align:top;">
+	<textarea id="status" style="width: 300px; height:20px"/></textarea>
+      </td>
+      <td style="text-align:top;">
+	<div id="map_canvas" style="width: 500px; height: 300px; z-index:2"></div> 
+      </td>
+    </tr>
+    </table>
+  </body> 
+</html> 
