@@ -22,7 +22,7 @@ function initialize() {
     textarea.style.height = canvas.style.height;
 
     var myOptions = {
-	zoom: 16,
+	zoom: 14,
 	center: default_location,
 	mapTypeId: google.maps.MapTypeId.ROADMAP
     };
@@ -31,11 +31,12 @@ function initialize() {
     rectangle = new google.maps.Rectangle({bounds: getBounds(default_location), map: map,
 					   fillColor: "999999"});
 
-    new CenterMarker(default_location);
-    new NodeMarker(new google.maps.LatLng(37.874, -122.265));
+    MakeCenterMarker(default_location, function (m) {});
+    MakeNodeMarker(new google.maps.LatLng(37.874, -122.265), function (m) {});
 
     var buttonDiv = document.createElement('DIV');
     var xmlButton = new XMLButton(buttonDiv, map);
+    var randButton = new RandomGenButton(buttonDiv, map);
     map.controls[google.maps.ControlPosition.TOP_LEFT].push(buttonDiv);
 }
 
@@ -45,46 +46,19 @@ function changeStatus(text) {
     status.scrollTop = status.scrollHeight;
 }
 
-constantBound = 0.005;
+constantBound = 0.05;
 function getBounds(latlng) {
     var latlng1 = new google.maps.LatLng(latlng.lat()-constantBound, latlng.lng()-constantBound);
     var latlng2 = new google.maps.LatLng(latlng.lat()+constantBound, latlng.lng()+constantBound);
+    changeStatus(latlng1);
+    changeStatus(latlng2);
     return new google.maps.LatLngBounds(latlng1, latlng2);
 }
 
-function XMLButton(controlDiv, map) {
-    this.divTag = null;
-    var obj = this;
-    this.click_func = function() {
-	$.post('js/xml_file.php', {xml: toXML()}, function(filename) {
-		var filename = filename.replace(/[\"\']{1}/gi,"");
-		var oldTag = document.getElementById("xml_div");
-		if (oldTag != null)
-		    document.body.removeChild(oldTag);
-
-		var divTag = document.createElement("div");
-		divTag.id = "xml_div";
-		divTag.style.position = "absolute";
-		divTag.style.width = "200px";
-		divTag.style.height = "50px";
-		divTag.style.zindex = "100";
-
-		var atag = document.createElement("a");
-		atag.href = "js/"+filename;
-		atag.innerHTML = "Click here to download";
-		
-		divTag.appendChild(atag);
-		document.body.appendChild(divTag);
-		floatingMenu.add('xml_div', {
-			targetRight: 10,  
-			    targetTop: 10,  
-			    snap: true  
-			    });
-	    });
-	changeStatus("DONE");
-	
-    };
-    PButton.apply(this, arguments);
-    this.controlText.innerHTML = "To XML";
-    this.controlUI.title = 'Click to output XML code';
+function sizeof(map) {
+    var length = 0;
+    for (i in map) {
+	length += 1;
+    }
+    return length;
 }

@@ -46,26 +46,17 @@ function ProtoMarker(options) {
     }
 
     this.addNeighbor = function(e) {
-	directions_service.route({origin: e.latLng,
-				  destination: e.latLng,
-				  travelMode: google.maps.DirectionsTravelMode.DRIVING},
-	    function(results, status) {
-		if (status == google.maps.DirectionsStatus.OK) {
-		    var routes = results.routes;
-		    var legs = routes[routes.length-1].legs;
-		    var latlng = legs[legs.length-1].end_location;
-
-		    directions_service.route({origin: obj.latlng,
-				destination: latlng,
-				travelMode: google.maps.DirectionsTravelMode.DRIVING},
-			function(results, status) {
-			    if (status == google.maps.DirectionsStatus.OK) {
-				var newMarker = new NodeMarker(latlng);
-				new Edge(this, newMarker, flatten(results));
-				obj.neighbors.push(newMarker);
-			    }
-			});
-		}
+	GetLatlngOnStreet(e.latLng, function(latlng) {
+		directions_service.route({origin: obj.latlng,
+					  destination: latlng,
+					  travelMode: google.maps.DirectionsTravelMode.DRIVING},
+		    function(results, status) {
+			if (status == google.maps.DirectionsStatus.OK) {
+			    var newMarker = new NodeMarker(latlng);
+			    new Edge(obj, newMarker, flatten(results));
+			    obj.neighbors.push(newMarker);
+			}
+		    });
 	    });
     };
 
@@ -98,6 +89,32 @@ function CenterMarker(latlng) {
     google.maps.event.addListener(this.marker, 'dragend', function(e) {
 	    rectangle.setBounds(getBounds(e.latLng));
 	    map.setCenter(e.latLng);
+	});
+}
+
+function GetLatlngOnStreet(latlng, f) {
+    directions_service.route({origin: latlng,
+		destination: latlng,
+		travelMode: google.maps.DirectionsTravelMode.DRIVING},
+	function(results, status) {
+	    if (status == google.maps.DirectionsStatus.OK) {
+		var routes = results.routes;
+		var legs = routes[routes.length-1].legs;
+		latlng = legs[legs.length-1].end_location;
+		f(latlng);
+	    }
+	});
+}
+
+function MakeNodeMarker(latlng, f) {
+    GetLatlngOnStreet(latlng, function(latlng) {
+	    f(new NodeMarker(latlng));
+	});
+}
+
+function MakeCenterMarker(latlng, f) {
+    GetLatlngOnStreet(latlng, function(latlng) {
+	    f(new CenterMarker(latlng));
 	});
 }
 
@@ -141,6 +158,7 @@ function flatten(results) {
 
 function toXML() {
     writer = new XMLWriter();
+    writer.BeginNode("Graph");
     for (var i = 0; i < markers.length; i ++) {
 	var marker = markers[i];
 	writer.BeginNode("Node");
@@ -154,5 +172,18 @@ function toXML() {
 
 	writer.EndNode();
     }
-    return "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>" + writer.ToString();
+
+    var i = null;
+    for (i in edge_map) {
+	var edge = edge_map[i];
+	writer.BeginNode("Edge");
+	writer.Attrib("from", edge.marker1.id);
+	writer.Attrib("to", edge.marker2.id);
+	writer.EndNode();
+    }
+    writer.EndNode();
+    return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + writer.ToString();
 }
+
+// Random Map Generation code
+

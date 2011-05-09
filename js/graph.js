@@ -404,3 +404,7 @@ function displayXML() {
     changeStatus1("</xml>");
     //document.write(str);
 }
+
+function ConstructionFromJson(nodes) {
+    
+}
